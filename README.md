@@ -16,11 +16,6 @@ This application allows you to convert various document formats to Markdown or e
 
 Try the application live at [Markdown Converter](https://getmarkdown.streamlit.app).
 
-## Requirements
-
-- `streamlit`
-- `markitdown`
-
 ## Running the Application
 
 To run the application, execute the following command:
