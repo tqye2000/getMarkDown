@@ -116,7 +116,7 @@ def main(argv):
     
     md = GetModel()
     
-    file_or_link = st.session_state.choose_type_placeholder.radio(st.session_state.locale.choose_content_type, ("File/文件", "Link/链接(Youtube, Wikipedia)"), index=st.session_state.type_index, horizontal=True)
+    file_or_link = st.session_state.choose_type_placeholder.radio(st.session_state.locale.choose_content_type, ("File/文件", "URL/链接(Youtube, Wikipedia, etc)"), index=st.session_state.type_index, horizontal=True)
     with st.session_state.uploading_file_placeholder:
         if "File" in file_or_link:
             st.session_state.type_index = 0
