@@ -10,6 +10,7 @@ import sys
 import streamlit as st
 from markitdown import MarkItDown
 from random import randint
+import base64
 
 class Local:    
     title: str
