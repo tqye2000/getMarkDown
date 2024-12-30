@@ -143,6 +143,7 @@ def main(argv):
                         results = md_results.text_content
                         # using the url last part as the file name
                         filePath = url.split("=")[-1]
+                        filePath = filePath.split("/")[-1]
                     except Exception as ex:
                         st.session_state.output_placeholder.warning(f"Error: {str(ex)}")
                         return
