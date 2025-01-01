@@ -199,7 +199,7 @@ def main(argv):
                 url = st.text_input(st.session_state.locale.enter_url_label, "")
                 col1, col2 = st.columns(2)
                 bnt_convert = col1.form_submit_button(st.session_state.locale.btn_convert_label)
-                bnt_download = col2.form_submit_button(st.session_state.locale.btn_download_label)
+                bnt_download = col2.form_submit_button(st.session_state.locale.btn_download_label, disabled=True)
                 if bnt_convert:
                     try:
                         with st.spinner('Wait ...'):
