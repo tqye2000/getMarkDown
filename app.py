@@ -8,7 +8,8 @@
 ###############################################################################
 import streamlit as st
 from markitdown import MarkItDown
-from pytube import YouTube
+import yt_dlp
+from urllib.error import HTTPError
 import tempfile
 import os
 import sys
@@ -33,6 +34,8 @@ class Local:
                 file_upload_label,
                 enter_url_label,
                 file_download_label,
+                btn_convert_label,
+                btn_download_label,
                 support_message,
                 ):
         self.title= title
@@ -43,6 +46,8 @@ class Local:
         self.file_upload_label = file_upload_label
         self.enter_url_label = enter_url_label
         self.file_download_label=file_download_label
+        self.btn_convert_label = btn_convert_label
+        self.btn_download_label = btn_download_label
         self.support_message = support_message
 
 en = Local(
@@ -53,6 +58,8 @@ en = Local(
     file_upload_label="Please uploaded your file (your file will never be saved anywhere)",
     enter_url_label="Please input the URL",
     file_download_label="Markdown File Download Link",
+    btn_convert_label="Markdown",
+    btn_download_label="Download",
     support_message="""
                 Please report any issues or suggestions to tqye@yahoo.com<br>If you like this App please <a href='https://buymeacoffee.com/tqye2006'>buy me a :coffee:🌝 </a>
                 <p> To use other AI models：
@@ -72,6 +79,8 @@ zw = Local(
     file_upload_label="请上传你的文件（文件只在内存，不会被保留）",
     enter_url_label="请输入链接",
     file_download_label="Markdown文件下载链接",
+    btn_convert_label="获取Markdown",
+    btn_download_label="下载视频",
     support_message="""
                     如遇什么问题或有什么建议，反馈，请电 tqye@yahoo.com
                     <p>使用其它AI模型:<br><a href='https://geminiecho.streamlit.app'>Gemini models</a>
@@ -81,16 +90,24 @@ zw = Local(
                     <br><a href='https://imagicapp.streamlit.app'>照片增强/去背景</a>
                     """,
 )
-    
+
 def download_youtube_video(url, output_path):
     '''
     Download a YouTube video using the provided URL
     '''
-    yt = YouTube(url)
-    stream = yt.streams.get_highest_resolution()
-    stream.download(output_path)
-    
-    return output_path
+    try:
+        ydl_opts = {
+            'format': 'best',
+            'outtmpl': f'{output_path}/%(title)s.%(ext)s',
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+        return output_path
+    except yt_dlp.utils.DownloadError as e:
+        print(f"Download Error: {str(e)}")
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+    return None
 
     # # Example usage
     # url = "https://www.youtube.com/watch?v=example"
@@ -167,8 +184,8 @@ def main(argv):
             with st.form(key='link_form'):
                 url = st.text_input(st.session_state.locale.enter_url_label, "")
                 col1, col2 = st.columns(2)
-                bnt_convert = col1.form_submit_button("Convert")
-                bnt_download = col2.form_submit_button("Download")
+                bnt_convert = col1.form_submit_button(st.session_state.locale.btn_convert_label)
+                bnt_download = col2.form_submit_button(st.session_state.locale.btn_download_label)
                 if bnt_convert:
                     try:
                         with st.spinner('Wait ...'):
