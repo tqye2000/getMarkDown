@@ -18,6 +18,7 @@ import base64
 
 class Local:    
     title: str
+    description: str
     choose_content_type: str
     language: str
     lang_code: str
@@ -28,6 +29,7 @@ class Local:
     
     def __init__(self, 
                 title,
+                description,
                 choose_content_type,
                 language,
                 lang_code,
@@ -39,6 +41,7 @@ class Local:
                 support_message,
                 ):
         self.title= title
+        self.description= description
         self.choose_content_type = choose_content_type
         self.language= language
         self.lang_code= lang_code
@@ -52,6 +55,7 @@ class Local:
 
 en = Local(
     title="Markdown, Please!",
+    description="<li>Convert File or Website to Markdown Format<li>Download Video from Youtube<p>",
     choose_content_type="File or Link",
     language="English",
     lang_code="en",
@@ -73,6 +77,7 @@ en = Local(
 
 zw = Local(
     title="Markdown, Please!",
+    description="<li>将文件或网页转换为Markdown格式<li>从Youtube下载视频<p>",
     choose_content_type="文件或链接",
     language="Chinese",
     lang_code="ch",
@@ -91,6 +96,7 @@ zw = Local(
                     """,
 )
 
+@st.cache_data()
 def download_youtube_video(url, output_path):
     '''
     Download a YouTube video using the provided URL
@@ -114,10 +120,11 @@ def download_youtube_video(url, output_path):
     # output_path = "path/to/download"
     # download_youtube_video(url, output_path)
 
+@st.cache_data()
 def create_download_link(out_file_name, results):
     st.markdown(get_binary_file_downloader_html(results.encode(), out_file_name), unsafe_allow_html=True)
 
-
+@st.cache_data()
 def get_binary_file_downloader_html(bin_file : bytes, file_label='File'):
     '''
     Generates a link allowing the data in a given bin_file to be downloaded
@@ -135,16 +142,17 @@ def GetModel():
     return MarkItDown()
 
 @st.cache_resource()
-def Main_Title(text: str) -> None:
+def Main_Title(title: str, desc: str) -> None:
 
-    st.markdown(f'<p style="background-color:#ffffff;color:#049ca4;font-weight:bold;font-size:24px;border-radius:2%;">{text}</p>', unsafe_allow_html=True)
+    st.markdown(f'<div style="background-color:#ffffff;color:#049ca4;font-weight:bold;font-size:24px;border-radius:2%;">{title}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="font-size:16px;">{desc}</div>', unsafe_allow_html=True)
 
 ##############################################
 ################ MAIN ########################
 ##############################################
 def main(argv):
     
-    Main_Title(st.session_state.locale.title + " (v0.0.1)")
+    Main_Title(st.session_state.locale.title + " (v0.0.1)", desc=st.session_state.locale.description)
 
     # Create placeholders
     st.session_state.choose_type_placeholder = st.empty()
