@@ -97,18 +97,22 @@ zw = Local(
 )
 
 @st.cache_data()
-def download_youtube_video(url, output_path):
+def download_youtube_video(url, output_dir):
     '''
     Download a YouTube video using the provided URL
     '''
     try:
         ydl_opts = {
             'format': 'best',
-            'outtmpl': f'{output_path}/%(title)s.%(ext)s',
+            'outtmpl': f'{output_dir}/%(title)s.%(ext)s',  # Ensure the output path includes the file name template
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-        return output_path
+            info_dict = ydl.extract_info(url, download=True)
+            #video_title = info_dict.get('title', None)
+            video_title = "video_output"
+            video_ext = info_dict.get('ext', None)
+            file_path = os.path.join(output_dir, f"{video_title}.{video_ext}")
+        return file_path
     except yt_dlp.utils.DownloadError as e:
         print(f"Download Error: {str(e)}")
     except Exception as e:
@@ -161,7 +165,8 @@ def main(argv):
     st.session_state.output_placeholder = st.empty()
     filePath = ""
     results = ""
-    
+    video_path = None
+
     # Get the model
     md = GetModel()
     
@@ -220,21 +225,22 @@ def main(argv):
                             with st.spinner('Downloading video...'):
                                 with tempfile.TemporaryDirectory() as tmpdirname:
                                     #output_path = os.path.join(tmpdirname, "video.mp4")
-                                    output_path = tmpdirname
-                                    download_youtube_video(url, output_path)
-                                    with open(output_path, "rb") as file:
-                                        btn = st.download_button(
-                                            label="Download Video",
-                                            data=file,
-                                            file_name="video.mp4",
-                                            mime="video/mp4"
-                                        )
-                                    st.success("Video is ready for download.")
+                                    output_dir = tmpdirname
+                                    video_path = download_youtube_video(url, output_dir)
                         else:
                             st.warning("Download is only supported for YouTube links.")
                     except Exception as ex:
                         st.session_state.output_placeholder.warning(f"Error: {str(ex)}")
                         return
+                    
+            if video_path is not None:
+                with open(video_path, "rb") as file:
+                    btn = st.download_button(
+                                    label="Download Video",
+                                    data=file,
+                                    file_name="video.mp4",
+                                    mime="video/mp4")
+                st.session_state.output_placeholder.success("Video is ready for download.")
         else:
             return                
         
