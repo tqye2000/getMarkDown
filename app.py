@@ -15,6 +15,7 @@ import os
 import sys
 from random import randint
 import base64
+import time
 
 class Local:    
     title: str
@@ -227,6 +228,8 @@ def main(argv):
                                     #output_path = os.path.join(tmpdirname, "video.mp4")
                                     output_dir = tmpdirname
                                     video_path = download_youtube_video(url, output_dir)
+                                    time.sleep(5)  # Sleep for 5 seconds to ensure the file is downloaded
+                                    
                         else:
                             st.warning("Download is only supported for YouTube links.")
                     except Exception as ex:
