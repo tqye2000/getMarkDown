@@ -79,6 +79,10 @@ zw = Local(
                     """,
 )
     
+def create_download_link(out_file_name, results):
+    st.markdown(get_binary_file_downloader_html(results.encode(), out_file_name), unsafe_allow_html=True)
+
+
 def get_binary_file_downloader_html(bin_file : bytes, file_label='File'):
     '''
     Generates a link allowing the data in a given bin_file to be downloaded
@@ -107,6 +111,7 @@ def main(argv):
     
     Main_Title(st.session_state.locale.title + " (v0.0.1)")
 
+    # Create placeholders
     st.session_state.choose_type_placeholder = st.empty()
     st.session_state.uploading_file_placeholder = st.empty()
     st.session_state.download_links = st.empty()
@@ -114,21 +119,28 @@ def main(argv):
     filePath = ""
     results = ""
     
+    # Get the model
     md = GetModel()
     
+    # Choose file or link
     file_or_link = st.session_state.choose_type_placeholder.radio(st.session_state.locale.choose_content_type, ("File/文件", "URL/链接(Youtube, Wikipedia, etc)"), index=st.session_state.type_index, horizontal=True)
     with st.session_state.uploading_file_placeholder:
         if "File" in file_or_link:
             st.session_state.type_index = 0
-
-            file_types = ['docx', 'pdf', 'ppt', 'pptx', 'xlsx', 'txt', 'csv', 'json', 'xml', 'yaml', 'yml', 'toml', 'c', 'cpp', 'h', 'hpp', 'cs', 'java', 'js', 'html', 'css', 'py', 'ipynb', 'r', 'rb', 'php', 'pl', 'sh', 'bat', 'ps1', 'cmd',]
-            st.session_state.uploaded_file = st.file_uploader(label=st.session_state.locale.file_upload_label, type=file_types, key=st.session_state.fup_key)
+            file_types = ['docx', 'pdf', 'ppt', 'pptx', 'xlsx', 'txt', 'csv', 'json', 'xml', 'yaml', 'yml', 'toml', 'c', 'cpp', 'h', 'hpp', 'cs', 'java', 'js', 'html', 'css', 'py', 'ipynb', 'php', 'pl',]
+            st.session_state.uploaded_file = st.file_uploader(label=st.session_state.locale.file_upload_label, type=file_types, accept_multiple_files=False, key=st.session_state.fup_key)
             if st.session_state.uploaded_file is not None:
                 #get file path
                 filePath = st.session_state.uploaded_file.name
                 try:
-                    md_results = md.convert(filePath)
-                    results = md_results.text_content
+                    with st.spinner('Wait ...'):
+                        md_results = md.convert(filePath)
+                        results = md_results.text_content
+                        with st.session_state.download_links:
+                            create_download_link(out_file_name, results)
+                        # display the result
+                        with st.session_state.output_placeholder:
+                            st.markdown(results, unsafe_allow_html=True)
                 except Exception as ex:
                     st.session_state.output_placeholder.warning(f"Error: {str(ex)}")
                     return
@@ -139,30 +151,31 @@ def main(argv):
                 bnt_convert = st.form_submit_button("Convert")
                 if bnt_convert:
                     try:
-                        md_results = md.convert(url)
-                        results = md_results.text_content
+                        with st.spinner('Wait ...'):
+                            md_results = md.convert(url)
+                            results = md_results.text_content
                         # using the url last part as the file name
                         filePath = url.split("=")[-1]
                         filePath = filePath.split("/")[-1]
+                        filePath += "_output"
+                        # create link to download the result
+                        out_file_name = f"{filePath}.md"
+                        with st.session_state.download_links:
+                            create_download_link(out_file_name, results)
+                        # display the result
+                        with st.session_state.output_placeholder:
+                            st.markdown(results, unsafe_allow_html=True)
                     except Exception as ex:
                         st.session_state.output_placeholder.warning(f"Error: {str(ex)}")
                         return
         else:
-            st.warning("No file uploaded")
             return                
         
     if results == "":
         st.session_state.output_placeholder.warning("No result")
         return
         
-    # create link to download the result
-    out_file_name = f"{filePath}.md"
-    with st.session_state.download_links:
-        st.markdown(get_binary_file_downloader_html(results.encode(), out_file_name), unsafe_allow_html=True)
 
-    # display the result
-    with st.session_state.output_placeholder:
-        st.markdown(results, unsafe_allow_html=True)
 
 
 ##############################
