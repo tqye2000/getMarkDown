@@ -219,7 +219,8 @@ def main(argv):
                         if "youtube.com" in url or "youtu.be" in url:
                             with st.spinner('Downloading video...'):
                                 with tempfile.TemporaryDirectory() as tmpdirname:
-                                    output_path = os.path.join(tmpdirname, "video.mp4")
+                                    #output_path = os.path.join(tmpdirname, "video.mp4")
+                                    output_path = tmpdirname
                                     download_youtube_video(url, output_path)
                                     with open(output_path, "rb") as file:
                                         btn = st.download_button(
