@@ -6,9 +6,12 @@
 # When      | Who           | What
 # 30/12/2024|TQ Ye          | Creation
 ###############################################################################
-import sys
 import streamlit as st
 from markitdown import MarkItDown
+from pytube import YouTube
+import tempfile
+import os
+import sys
 from random import randint
 import base64
 
@@ -79,6 +82,21 @@ zw = Local(
                     """,
 )
     
+def download_youtube_video(url, output_path):
+    '''
+    Download a YouTube video using the provided URL
+    '''
+    yt = YouTube(url)
+    stream = yt.streams.get_highest_resolution()
+    stream.download(output_path)
+    
+    return output_path
+
+    # # Example usage
+    # url = "https://www.youtube.com/watch?v=example"
+    # output_path = "path/to/download"
+    # download_youtube_video(url, output_path)
+
 def create_download_link(out_file_name, results):
     st.markdown(get_binary_file_downloader_html(results.encode(), out_file_name), unsafe_allow_html=True)
 
@@ -144,11 +162,13 @@ def main(argv):
                 except Exception as ex:
                     st.session_state.output_placeholder.warning(f"Error: {str(ex)}")
                     return
-        elif "Link" in file_or_link:
+        elif "URL" in file_or_link:
             st.session_state.type_index = 1
             with st.form(key='link_form'):
                 url = st.text_input(st.session_state.locale.enter_url_label, "")
-                bnt_convert = st.form_submit_button("Convert")
+                col1, col2 = st.columns(2)
+                bnt_convert = col1.form_submit_button("Convert")
+                bnt_download = col2.form_submit_button("Download")
                 if bnt_convert:
                     try:
                         with st.spinner('Wait ...'):
@@ -165,6 +185,27 @@ def main(argv):
                         # display the result
                         with st.session_state.output_placeholder:
                             st.markdown(results, unsafe_allow_html=True)
+                    except Exception as ex:
+                        st.session_state.output_placeholder.warning(f"Error: {str(ex)}")
+                        return
+                
+                if bnt_download:
+                    try:
+                        if "youtube.com" in url or "youtu.be" in url:
+                            with st.spinner('Downloading video...'):
+                                with tempfile.TemporaryDirectory() as tmpdirname:
+                                    output_path = os.path.join(tmpdirname, "video.mp4")
+                                    download_youtube_video(url, output_path)
+                                    with open(output_path, "rb") as file:
+                                        btn = st.download_button(
+                                            label="Download Video",
+                                            data=file,
+                                            file_name="video.mp4",
+                                            mime="video/mp4"
+                                        )
+                                    st.success("Video is ready for download.")
+                        else:
+                            st.warning("Download is only supported for YouTube links.")
                     except Exception as ex:
                         st.session_state.output_placeholder.warning(f"Error: {str(ex)}")
                         return

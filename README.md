@@ -4,13 +4,13 @@ This application allows you to convert various document formats to Markdown or e
 
 ## Features
 
-- **File Upload**: Convert documents such as DOCX, PDF, PowerPoint, Excel, CSV, HTML, and more to Markdown.
+- **File Upload**: Convert documents such as DOCX, PDF, PowerPoint, Excel, XML, CSV, HTML, and more to Markdown.
 - **URL Extraction**: Extract content from YouTube or Wikipedia links.
 
 ## Usage
 
 1. **Upload a File**: Select and upload a document for conversion.
-2. **Provide a URL**: Enter a YouTube or Wikipedia link to extract its content.
+2. **Provide a URL**: Enter a YouTube or Wikipedia link to extract its content or download the video.
 
 ## Live Demo
 
